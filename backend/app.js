@@ -8,7 +8,9 @@ const userRoutes = require('./routes/user');
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+const connectToSocket = require("./controllers/socketManager");
+const io = connectToSocket(server);
+
 
 
 
