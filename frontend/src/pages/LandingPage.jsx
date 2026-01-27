@@ -1,4 +1,4 @@
-import '../App.css';
+import '../landingPage.css';
 import { Link } from 'react-router-dom';
 export default function LandingPage() {
     return ( 
@@ -19,9 +19,9 @@ export default function LandingPage() {
             <div className="landingPage-body">
                 <div>
                     <h1><span style={{color: '#FF9839'}}>Connect</span> with your Loved Ones</h1>
-                    <p>Cover a distance by Apna Video call</p>
+                    <p>cover a distance by Apna Video call</p>
                     <div role='button'>
-                        <Link to={'/home'}>Get Started</Link>
+                        <Link to={'/auth'}>Get Started</Link>
                     </div>
                 </div>
                 <div>
