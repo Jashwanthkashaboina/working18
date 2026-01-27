@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 
 
 module.exports.signup = async(req, res)=>{
-    const { name, username, password } = req.body;
+    const { email, username, password } = req.body;
     // const registeredUser
     
     try{
@@ -12,7 +12,7 @@ module.exports.signup = async(req, res)=>{
             return res.status(409).json({ message: "User already exists" });
         }
         const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = new User({ name, username, password: hashedPassword });
+        const newUser = new User({ email, username, password: hashedPassword });
         // console.log(newUser);
 
         await newUser.save();
