@@ -26,14 +26,27 @@ export const AuthProvider = ({ children }) =>{
                 username,
                 password,
             });
-            
+
             if(request.status === 201) return request.data.message;
         } catch(err){
             throw (err);
         }
     }
 
-    const data = { userData, setUserData, handleRegister };
+    const handleLogin = async(username, password) =>{
+        try{
+            let request = await client.post('/login', {
+                username,
+                password,
+            });
+
+            if(request.status === 200) return request.data.message;
+
+        } catch(err){
+            throw err;
+        }
+    }
+    const data = { userData, setUserData, handleRegister, handleLogin };
     return (
         <AuthContext.Provider value={data}>
             { children }

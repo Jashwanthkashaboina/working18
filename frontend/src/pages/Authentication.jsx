@@ -10,6 +10,7 @@ import {
   Paper,
   Box,
   Typography,
+  Snackbar, Alert
 } from "@mui/material";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
@@ -18,23 +19,48 @@ import { AuthContext } from "../contexts/AuthContext";
 const theme = createTheme();
 
 export default function Authentication() {
-  const [formState, setFormState] = useState(0);
+  const [formState, setFormState] = useState(0); // 0 - SignIn, 1 - SignUp
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const { handleRegister } = useContext(AuthContext);
+  // snack bar
+  const [snackBarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("error");
+
+  const showSnackbar = (message, severity = 'error') =>{
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setSnackbarOpen(true);
+  }
+
+  const handleSnackbarClose = () => setSnackbarOpen(false);
+
+  const { handleRegister, handleLogin } = useContext(AuthContext);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       if (formState === 1) {
         await handleRegister(email, username, password);
+        showSnackbar("Registration successful!", "success");
         setFormState(0);
+        // setTimeout(() => {
+        //     navigate("/login");
+        // }, 1500);
+      } else if(formState === 0){
+        await handleLogin(username, password);
+        showSnackbar("Login successful!", "success");
+
+        // setTimeout(() => {
+        //     navigate("/dashboard");
+        // }, 1500);
       }
     } catch (err) {
-      setError(err?.message || "Something went wrong");
+    //   let message = err.response.data.message;
+      showSnackbar(err?.response?.data?.message || "Something went wrong", "error");
     }
   };
 
@@ -102,6 +128,7 @@ export default function Authentication() {
                   fullWidth
                   margin="normal"
                   label="Email"
+                  value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
               )}
@@ -110,6 +137,7 @@ export default function Authentication() {
                 fullWidth
                 margin="normal"
                 label="Username"
+                value={username}
                 onChange={(e) => setUsername(e.target.value)}
               />
 
@@ -118,6 +146,7 @@ export default function Authentication() {
                 margin="normal"
                 type="password"
                 label="Password"
+                value={password} // making form controlled 
                 onChange={(e) => setPassword(e.target.value)}
               />
 
@@ -142,6 +171,21 @@ export default function Authentication() {
           </Box>
         </Paper>
       </Box>
+
+    <Snackbar 
+        open={snackBarOpen}
+        autoHideDuration={3000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+    >
+        <Alert 
+            onClose={handleSnackbarClose} 
+            severity={snackbarSeverity} 
+            sx={{ width: '100%' }}
+        >
+            { snackbarMessage }
+        </Alert>    
+    </Snackbar>
     </ThemeProvider>
   );
 }
