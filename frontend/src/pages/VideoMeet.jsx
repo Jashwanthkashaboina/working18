@@ -12,6 +12,28 @@ const peerConfigConnections = {
     ]
 };
 
+
+// *** VIDEO PLAYER *** //
+const VideoPlayer = ({ stream }) =>{
+    const ref = useRef(null);
+
+    useEffect(() =>{
+        if(ref.current){
+            ref.current.srcObject = stream;
+        }
+    }, [stream]);
+
+    return(
+        <video 
+            ref={ref}
+            autoPlay
+            playsInline
+            style={{ width: '300px', margin: '10px', borderRadius: '8px' }}
+        />    
+    )
+
+}
+
 export default function VideoMeet() {
     // Socket related refs (do NOT cause re-render)
     const socketRef = useRef(null);
@@ -72,7 +94,6 @@ export default function VideoMeet() {
             setVideoEnabled(hasVideo);
             setAudioEnabled(hasAudio);
 
-
             if (localVideoRef.current) {
                 localVideoRef.current.srcObject = stream;
             }
@@ -90,11 +111,13 @@ export default function VideoMeet() {
     // Get permissions on mount & cleanup on unmount
     useEffect(() => {
         getPermissions();
-
         return () => {
-            localStream?.getTracks().forEach(track => track.stop());
+            if (localVideoRef.current?.srcObject) {
+                localVideoRef.current.srcObject
+                    .getTracks()
+                    .forEach(track => track.stop());
+            }
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // Toggle video/audio tracks when state changes
@@ -110,9 +133,81 @@ export default function VideoMeet() {
         });
     }, [videoEnabled, audioEnabled, localStream]);
 
+
     // TODO : gotMessageFromServer (WebRTC signaling)
-    let gotMessageFromServer = (data) => {
-        
+    // **** SIGNALLING ****//
+    let gotMessageFromServer = async (fromId, message) => {
+        const signal = JSON.parse(message);
+
+        // Create connection if it doesn't exist
+        if (!connections.current[fromId]) {
+            const pc = new RTCPeerConnection(peerConfigConnections);
+            connections.current[fromId] = pc;
+
+            // ICE candidates
+            pc.onicecandidate = event => {
+                if (event.candidate) {
+                    socketRef.current.emit(
+                        'signal',
+                        {
+                            to: fromId,              // FIX
+                            signal: { ice: event.candidate } // FIX
+                        }
+                    );
+                }
+            };
+
+            // Remote stream
+            pc.ontrack = event => {
+                const stream = event.streams[0];
+                setVideos(prev => {
+                    const exists = prev.find(v => v.socketId === fromId);
+                    if (exists) return prev;
+                    return [...prev, { socketId: fromId, stream }];
+                });
+            };
+
+            // Add local tracks
+            if (localStream) { 
+                localStream.getTracks().forEach(track => {
+                    pc.addTrack(track, localStream);
+                });
+            }
+        }
+
+        const pc = connections.current[fromId];
+
+        // Handle SDP
+        if (signal.sdp) {
+            await pc.setRemoteDescription(
+                new RTCSessionDescription(signal.sdp)
+            );
+
+            // If offer, create answer
+            if (signal.sdp.type === 'offer') {
+                const answer = await pc.createAnswer();
+                await pc.setLocalDescription(answer);
+
+                socketRef.current.emit(
+                    'signal',
+                    {
+                        to: fromId,              // FIX
+                        signal: { sdp: pc.localDescription } // FIX
+                    }
+                );
+            }
+        }
+
+        // Handle ICE
+        if (signal.ice) {
+            try {
+                await pc.addIceCandidate(
+                    new RTCIceCandidate(signal.ice)
+                );
+            } catch (err) {
+                console.error('ICE error', err);
+            }
+        }
     };
 
     // TODO : addMessage (chat messages)
@@ -121,12 +216,16 @@ export default function VideoMeet() {
         setNewMessages(prev => prev + 1);
     };
 
-    
     // Connect to socket server
     let connectToSocketServer = () => {
         socketRef.current = io(server_url);
 
-        socketRef.current.on('signal', gotMessageFromServer);
+        socketRef.current.on(
+            'signal',
+            ({ from, signal }) => {          // FIX
+                gotMessageFromServer(from, JSON.stringify(signal)); // FIX
+            }
+        );
 
         socketRef.current.on('connect', () => {
             console.log('Connected to:', socketRef.current.id);
@@ -149,60 +248,104 @@ export default function VideoMeet() {
                 }
             });
 
-        socketRef.current.on('user-joined', (id, clients) => {
-            clients.forEach(socketListId => {
-                // Avoid connecting to self
-                if (socketListId === socketIdRef.current) return;
+            socketRef.current.on('user-joined', async (id, clients) => {
+                for (const socketListId of clients) {
+                    // Avoid connecting to self
+                    if (socketListId === socketIdRef.current) continue;
 
-                if (!connections.current[socketListId]) {
-                    const pc = new RTCPeerConnection(peerConfigConnections);
-                    connections.current[socketListId] = pc;
+                    if (!connections.current[socketListId]) {
+                        const pc = new RTCPeerConnection(peerConfigConnections);
+                        connections.current[socketListId] = pc;
 
-                    // Send ICE candidates
-                    pc.onicecandidate = event => {
-                        if (event.candidate) {
-                            socketRef.current.emit(
-                                'signal',
-                                socketListId,
-                                JSON.stringify({ ice: event.candidate })
-                            );
+                        // Send ICE candidates
+                        pc.onicecandidate = event => {
+                            if (event.candidate) {
+                                socketRef.current.emit(
+                                    'signal',
+                                    {
+                                        to: socketListId,              // FIX
+                                        signal: { ice: event.candidate } // FIX
+                                    }
+                                );
+                            }
+                        };
+
+                        // Receive remote stream
+                        pc.ontrack = event => {
+                            const stream = event.streams[0];
+
+                            setVideos(prev => {
+                                const exists = prev.find(v => v.socketId === socketListId);
+                                if (exists) return prev;
+
+                                return [...prev, {
+                                        socketId: socketListId,
+                                        stream
+                                    }
+                                ];
+                            });
+                        };
+
+                        if (localStream) {
+                            localStream.getTracks().forEach(track => {
+                                pc.addTrack(track, localStream);
+                            });
                         }
-                    };
 
-                    // Receive remote stream
-                    pc.ontrack = event => {
-                        const stream = event.streams[0];
+                        // *** OFFER CREATION *** //
+                        const offer = await pc.createOffer();
+                        await pc.setLocalDescription(offer);
 
-                        setVideos(prev => {
-                            const exists = prev.find(v => v.socketId === socketListId);
-                            // Prevents duplicate video
-                            if (exists) return prev;
-
-                            return [
-                                ...prev,
-                                {
-                                    socketId: socketListId,
-                                    stream
-                                }
-                            ];
-                        });
-                    };
-
-                    // Add local tracks
-                    localStream.getTracks().forEach(track => {
-                        pc.addTrack(track, localStream);
-                    });
-                }
+                        socketRef.current.emit('signal', {
+                            to: socketListId,
+                            signal: { sdp : pc.localDescription }
+                        })
+                    }
+                };
             });
         });
-
-    });
 
         socketRef.current.on('disconnect', () => {
             console.log('Disconnected from Server');
         });
     };
 
+    // *** CLEAN-UP *** //
+    const cleanup = () => {
+        // 1. Stop local media
+        if (localStream) {
+            localStream.getTracks().forEach(track => track.stop());
+        }
+
+        // 2. Close all peer connections
+        Object.values(connections.current).forEach(pc => {
+            pc.close();
+        });
+        connections.current = {};
+
+        // 3. Clear remote videos
+        setVideos([]);
+
+        // 4. Disconnect socket
+        if (socketRef.current) {
+            socketRef.current.disconnect();
+        }
+    };
+
+    // *** CLEAN *** //
+    useEffect(() => {
+        const handleUnload = () => {
+            cleanup();
+        };
+
+        window.addEventListener("beforeunload", handleUnload);
+
+        return () => {
+            handleUnload();
+            window.removeEventListener("beforeunload", handleUnload);
+        };
+    }, [localStream]);
+    
     // Initialize media + socket
     const getMedia = () => {
         setVideoEnabled(videoAvailable);
@@ -239,10 +382,37 @@ export default function VideoMeet() {
                             muted
                             autoPlay
                             playsInline
+                            style={{ width: '300px', marginTop: '10px' }}
                         />
+                    </div>
+                </div>
+            )}
+
+            {!askUserName && (
+                <div>
+                    <h3>Meeting Room</h3>
+
+                    {/* Local video */}
+                    <video
+                        ref={localVideoRef}
+                        muted
+                        autoPlay
+                        playsInline
+                        style={{ width: '300px', margin: '10px', borderRadius: '8px' }}
+                    />
+
+                    {/* Remote videos */}
+                    <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+                        {videos.map(video => (
+                            <VideoPlayer
+                                key={video.socketId}
+                                stream={video.stream}
+                            />
+                        ))}
                     </div>
                 </div>
             )}
         </div>
     );
+
 }
