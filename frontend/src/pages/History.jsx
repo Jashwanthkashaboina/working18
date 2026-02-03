@@ -23,12 +23,20 @@ export default function History() {
                 const history = await getHistoryOfUser();
                 setMeetings(history);
             } catch(err){
+                const status = err.response?.status;
+
+                if (status === 401 || status === 403) {
+                    toast.error("You must be logged in !");
+                    localStorage.removeItem("token");
+                    navigate("/auth");
+                    return;
+                }
                 toast.error(err.response?.data?.message || 'Failed to fetch history');
                 console.error(err);
             }
         }
         fetchHistory();
-    },[]);
+    },[getHistoryOfUser, navigate]);
     return (
         <>
           <div className="historyPage">

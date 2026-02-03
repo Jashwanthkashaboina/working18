@@ -450,25 +450,29 @@ export default function VideoMeetComponent() {
 
             {askForUsername === true ?
 
-                <div>
+                <div className="preJoinBox">
+                    <h2>Your Meeting Starts here...</h2>
 
+                    <div className="inputRow">
+                        <TextField
+                            label="Username"
+                            value={username}
+                            onChange={e => setUsername(e.target.value)}
+                            variant="outlined"
+                        />
 
-                    <h2>Enter into Lobby </h2>
-                    <TextField 
-                        id="outlined-basic" 
-                        label="Username" 
-                        value={username} 
-                        onChange={e => setUsername(e.target.value)} 
-                        variant="outlined" 
-                    />
-                    <Button variant="contained" onClick={connect}>Connect</Button>
-
-
-                    <div>
-                        <video ref={localVideoref} autoPlay muted></video>
+                        <Button 
+                            variant="contained" 
+                            onClick={connect}
+                            disabled={!username.trim()}
+                        >
+                            CONNECT
+                        </Button>
                     </div>
 
-                </div> :
+
+                    <video ref={localVideoref} autoPlay muted></video>
+                    </div>  :
 
 
                 <div className='meetVideoContainer'>

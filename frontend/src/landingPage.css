@@ -125,6 +125,42 @@
 }
 
 
+.preJoinBox {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;   /* vertical center */
+  align-items: center;       /* horizontal center */
+  gap: 20px;
+}
+
+
+.inputRow {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.preJoinBox video {
+  width: 360px;
+  height: auto;
+  border-radius: 12px;
+  margin-top: 10px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+
+.preJoinContainer h2 {
+  margin-bottom: 10px;
+}
+
+.inputRow {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+
 
 
 /* HISTORY PAGE */

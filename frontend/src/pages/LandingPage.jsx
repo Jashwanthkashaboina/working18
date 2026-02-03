@@ -10,9 +10,6 @@ export default function LandingPage() {
                 </div>
                 <div className="nav-list">
                     <p onClick={
-                        () =>{ navigate('/meet/guestCall'); }
-                    }>Join as a Guest</p>
-                    <p onClick={
                         () =>{ navigate('/auth'); }
                     }>Register</p>
                     <div role='button'>
