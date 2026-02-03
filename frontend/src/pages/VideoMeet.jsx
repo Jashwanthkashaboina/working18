@@ -13,7 +13,7 @@ import ChatIcon from '@mui/icons-material/Chat'
 // import server from '../environment';
 import { useNavigate } from 'react-router';
 import withAuth from '../utils/WithAuth';
-import server from '../enviroment.js';
+import server from '../Environment.js';
 
 const server_url = server;
 

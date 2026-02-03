@@ -2,7 +2,7 @@ import { createContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import axios from "axios";
-import server from '../environment.js'
+import server  from '../Environment.js'
 
 export const AuthContext = createContext(null);
 // Creates a pre-configured axios instance
