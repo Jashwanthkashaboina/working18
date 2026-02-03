@@ -2,13 +2,13 @@ import { createContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import axios from "axios";
-
+import server from '../environment.js'
 
 export const AuthContext = createContext(null);
 // Creates a pre-configured axios instance
 // You don’t have to repeat the base URL every time
 const client = axios.create({
-    baseURL: 'http://localhost:5000/user'
+    baseURL: server
 });
 // == Instance = Axios with memory === //
 // So instead of writing: axios.post('http://localhost:5000/user/signup')

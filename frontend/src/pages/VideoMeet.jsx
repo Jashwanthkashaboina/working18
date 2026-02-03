@@ -13,8 +13,9 @@ import ChatIcon from '@mui/icons-material/Chat'
 // import server from '../environment';
 import { useNavigate } from 'react-router';
 import withAuth from '../utils/WithAuth';
+import server from '../enviroment.js';
 
-const server_url = 'http://localhost:5000';
+const server_url = server;
 
 var connections = {};
 
