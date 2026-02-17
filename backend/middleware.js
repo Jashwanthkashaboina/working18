@@ -19,6 +19,7 @@ export const verifyToken = (req, res, next) => {
     }
 
     console.log("Decoded user:", decoded);
+    // Attach the verified identity to this request
     req.user = decoded;
     next();
   });

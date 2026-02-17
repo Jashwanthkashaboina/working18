@@ -13,6 +13,7 @@ import { AuthContext } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
+// Global object
 const theme = createTheme();
 
 export default function Authentication() {

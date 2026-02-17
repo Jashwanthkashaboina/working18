@@ -4,19 +4,20 @@ export default function LandingPage() {
     const navigate = useNavigate();
     return ( 
         <div className='landingPageContainer'>
-            <nav className='navbar'>
+            <nav className='navBar'>
                 <div className="nav-header">
                     <h2>Meet Nest</h2>
                 </div>
                 <div className="nav-list">
                     <p onClick={
                         () =>{ navigate('/auth'); }
-                    }>Register</p>
-                    <div role='button'>
-                        <p onClick={
-                            () =>{ navigate('/auth'); }
-                        }>Login</p>
-                    </div>
+                    }>
+                        Register
+                    </p>
+                    <button onClick={() => navigate('/auth')} className="primaryBtn">
+                        Login
+                    </button>
+
                     
                 </div>
             </nav>

@@ -26,12 +26,12 @@ export default function History() {
                 const status = err.response?.status;
 
                 if (status === 401 || status === 403) {
-                    toast.error("You must be logged in !");
+                    toast.error("Access Denied !");
                     localStorage.removeItem("token");
                     navigate("/auth");
                     return;
                 }
-                toast.error(err.response?.data?.message || 'Failed to fetch history');
+                toast.error('Failed to fetch history');
                 console.error(err);
             }
         }

@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react'
 import withAuth from '../utils/WithAuth'
 import { useNavigate } from 'react-router-dom'
 import "../App.css";
-import { Button, IconButton, TextField } from '@mui/material';
+import { Button, Box, IconButton, TextField } from '@mui/material';
 import RestoreIcon from '@mui/icons-material/Restore';
 import { AuthContext } from '../contexts/AuthContext';
 import toast from "react-hot-toast";
@@ -52,7 +52,7 @@ function HomeComponent() {
                             marginTop: '10px',
                         }}
                     >
-                    <RestoreIcon 
+                    {/* <RestoreIcon 
                         sx={{
                             '&:hover': {
                                 color: '#1976d2',
@@ -61,7 +61,26 @@ function HomeComponent() {
 
                     
                     />
-                    <span>History</span>
+                    <span>History</span> */}
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            cursor: 'pointer',
+                            '&:hover .hoverItem': {
+                            color: '#1976d2',
+                            },
+                        }}
+                        >
+                        <RestoreIcon className="hoverItem" />
+                        <span 
+                            className="hoverItem"
+                            style={{paddingLeft: '5px'}}
+                        >
+                            History
+                        </span>
+                    </Box>
+
                     </div>
 
                     <Button

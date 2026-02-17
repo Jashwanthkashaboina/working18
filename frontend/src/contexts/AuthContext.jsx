@@ -1,4 +1,4 @@
-import { createContext, useState } from "react";
+import { createContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import axios from "axios";
@@ -17,6 +17,15 @@ const client = axios.create({
 export const AuthProvider = ({ children }) =>{
     const [userData, setUserData] = useState(null);
     const navigate = useNavigate();
+
+    useEffect(() =>{
+        const token = localStorage.getItem('token');
+        const activeMeeting = localStorage.getItem('activeMeeting');
+
+        if(token && activeMeeting){
+            navigate(activeMeeting);
+        }
+    }, []);
 
     const handleRegister = async(email, username, password) =>{
 

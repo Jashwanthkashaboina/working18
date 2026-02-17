@@ -32,6 +32,7 @@ const connectToSocket = (server) => {
         console.log(`user joined ${connections[path]} to ${socket.id} socket`);
       });
 
+      // If this room already has chat history, send it to the new user
       if (messages[path]) {
         messages[path].forEach((msg) => {
           io.to(socket.id).emit(

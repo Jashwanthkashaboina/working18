@@ -1,8 +1,16 @@
-.meetVideoContainer {
-    position: relative;
-    height: 100vh;
-    background: rgb(1, 4, 48);
+.localVideoContainer {
+    position: absolute;
+    bottom: 10vh;
+    left: 0;
+    height: 20vh;
+    width: auto;
 }
+
+.localVideo {
+    height: 100%;
+    border-radius: 20px;
+}
+
 
 .meetUserVideo {
     position: absolute;
@@ -38,6 +46,39 @@
     min-width: 30vw;
     border-radius: 10px;
 }
+
+
+/* .localVideoContainer {
+    position: relative;
+}
+
+.videoOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #1f1f1f;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+}
+
+.avatarCircle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: #4f46e5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 10px;
+} */
+
 
 .chatRoom {
     position: absolute;
