@@ -7,12 +7,17 @@ import RestoreIcon from '@mui/icons-material/Restore';
 import { AuthContext } from '../contexts/AuthContext';
 import toast from "react-hot-toast";
 import LogoutIcon from '@mui/icons-material/Logout';
+import { nanoid } from 'nanoid';
 function HomeComponent() {
 
 
     let navigate = useNavigate();
     const [meetingCode, setMeetingCode] = useState("");
 
+    const handleNewMeeting = () => {
+        const meetingId = nanoid(10); // generates short random id
+        navigate(`/meet/${meetingId}`);
+    };
 
     const {addToUserHistory} = useContext(AuthContext);
     let handleJoinVideoCall = async () => {
@@ -129,11 +134,35 @@ function HomeComponent() {
                                     paddingInline: 3,
                                     fontSize: '1rem',
                                     borderRadius: '12px',
-                                    mt: '10px', ml: '5px'
+                                    mt: '10px', ml: '5px',
+                                    "&:hover": {
+                                        transform: "translateY(-2px)",   
+                                    }
                                 }}
                                 
                             >
                                 Join
+                            </Button>
+                            <Button
+                                onClick={handleNewMeeting}
+                                variant='outlined'
+                                sx={{
+                                    height: 45,
+                                    borderRadius: "12px",
+                                    mt: "10px",
+                                    transition: 'all 0.3s ease-in-out',
+                                    color: "#1976d2",
+                                    borderColor: "#1976d2",           
+                                    "&:hover": {
+                                        backgroundColor: "#1976d2",  
+                                        color: "#fff",  
+                                        transform: "translateY(-2px)",                
+                                        borderColor: "#1976d2",
+                                    }
+                                }}  
+                            
+                            >
+                                New Meeting
                             </Button>
 
                         </div>
