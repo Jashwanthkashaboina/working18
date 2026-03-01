@@ -17,6 +17,7 @@
     max-width: 180px;
     max-height: 160px;
     z-index: 40;
+    touch-action: none;
     cursor: grab;
 }
 

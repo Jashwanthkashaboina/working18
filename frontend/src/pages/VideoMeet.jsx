@@ -1399,9 +1399,10 @@ function VideoMeetComponent() {
                         </div> */}
                         <div
                             className="localVideoContainer"
-                            onMouseDown={startDrag}
-                            onMouseUp={stopDrag}
-                            onMouseMove={onDrag}
+                            onPointerDown={startDrag}
+                            onPointerMove={onDrag}
+                            onPointerUp={stopDrag}
+                            onPointerCancel={stopDrag}
                             style={{
                                 left: pipPos.x,
                                 top: pipPos.y
